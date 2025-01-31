@@ -156,6 +156,12 @@ while [[ $# -ge 1 ]]; do
 
 [[ "$EUID" -ne '0' ]] && echo "Error:This script must be run as root!" && exit 1;
 
+function lowMem(){
+  mem=`grep "^MemTotal:" /proc/meminfo 2>/dev/null |grep -o "[0-9]*"`
+  [ -n "$mem" ] || return 0
+  [ "$mem" -le "524288" ] && return 1 || return 0
+}
+
 function dependence(){
   Full='0';
   for BIN_DEP in `echo "$1" |sed 's/,/\n/g'`
@@ -267,12 +273,6 @@ function getGrub(){
   [ -n "$fileName" ] || return
   [ "$fileName" == "grub.cfg" ] && ver="0" || ver="1"
   echo "${folder}:${fileName}:${ver}"
-}
-
-function lowMem(){
-  mem=`grep "^MemTotal:" /proc/meminfo 2>/dev/null |grep -o "[0-9]*"`
-  [ -n "$mem" ] || return 0
-  [ "$mem" -le "524288" ] && return 1 || return 0
 }
 
 if [[ "$loaderMode" == "0" ]]; then
